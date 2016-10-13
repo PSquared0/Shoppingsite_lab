@@ -77,9 +77,18 @@ def show_shopping_cart():
     #
     # Make sure your function can also handle the case wherein no cart has
     # been added to the session
+    melon_list = []
+    total = 0
 
+    for name, qty in session["cart"].iteritems():
+        melon = melons.get_by_id(name)
+        melon.quantity = qty
+        melon.subtotal = qty * melon.price
+        melon_list.append(melon)
+        total += melon.subtotal
+        print melon
 
-    return render_template("cart.html")
+    return render_template("cart.html", melon_list=melon_list, total=total)
 
 
 @app.route("/add_to_cart/<melon_id>")
@@ -103,15 +112,19 @@ def add_to_cart(melon_id):
 
     
 
-    if "cart" not in session:
-        session["cart"] = {}
+    if "cart" not in session: #if there is not a melon in session
+        session["cart"] = {} #create an empty dict
+        
 
-        session[melon_id] = session.get(melon_id,0) + 1
+    session["cart"][melon_id] = session["cart"].get(melon_id,0) + 1 #count melons
 
-        flash("Items added to cart!")
-        print session
+    flash("Items added to cart!") #flash msg if items are added to the cart
+    
 
-    return "Oops! This needs to be implemented!"
+
+
+    # return "Oops! This needs to be implemented!"
+    return redirect("/cart")
 
 
 @app.route("/login", methods=["GET"])
